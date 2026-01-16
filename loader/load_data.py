@@ -106,7 +106,7 @@ for filename in activity_files:
                         "INSERT INTO locations (geom, timestamp, type) VALUES (ST_SetSRID(ST_MakePoint(%s, %s), 4326), %s, %s);",
                         (lat, lng, timestamp, item_type),
                     )
-                    print("\rLocations written: %s" % (added), end="")
+                    #print("\rLocations written: %s" % (added), end="")
                     added += 1
                     prev_timestamp = timestamp
 
