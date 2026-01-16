@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   db:
-    image: postgres:16
+    image: postgis/postgis:16-3.4
     container_name: db
     environment:
       POSTGRES_DB: ${DB_NAME}
@@ -12,7 +12,12 @@ services:
       - pgdata:/var/lib/postgresql/data
       - ./db/init:/docker-entrypoint-initdb.d:ro
     ports:
-      - "5432:5432"
+    - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $DB_USER"]
+      interval: 2s
+      timeout: 2s
+      retries: 10
 
   loader:
     build:
@@ -22,10 +27,14 @@ services:
     environment:
       DATABASE_URL: postgres://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
       DATA_ZIP: /data/dataset.zip
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
     volumes:
       - ./data:/data:ro
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     restart: "no"
 
   api:
@@ -35,11 +44,16 @@ services:
     container_name: dev-api
     environment:
       DATABASE_URL: postgres://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
     ports:
       - "3001:3001"
     depends_on:
-      - db
-      - loader
+      db:
+        condition: service_healthy
+      loader:
+        condition: service_completed_successfully
 
   web:
     build:
@@ -51,7 +65,8 @@ services:
     environment:
       REACT_APP_API_URL: http://localhost:3001
     depends_on:
-      - api
+      api:
+        condition: service_started
 
 volumes:
   pgdata:

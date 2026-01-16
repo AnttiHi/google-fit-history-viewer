@@ -12,10 +12,10 @@ app.listen(3000, "0.0.0.0", () => {
 
 const pool = new Pool({
     user: process.env.DB_USER,
-    host: process.env.DB_HOST,
+    host: "db",
     database: process.env.DB_NAME,
     password: process.env.DB_PASSWORD,
-    port: process.env.DB_PORT,
+    port: "5432",
 });
 
 let cachedTimestamps = {
@@ -42,7 +42,7 @@ async function fetchTimestamps() {
         };
     }
 }
-
+console.log(process.env.DB_USER, process.env.DB_NAME, process.env.DB_PASSWORD);
 fetchTimestamps();
 
 app.get("/timestamps", async (req, res) => {
@@ -80,8 +80,6 @@ app.get("/locations", async (req, res) => {
     }
 });
 
-app.get / "/tim"
 
-
-app.listen(5000, () => console.log("Server running on port 5000"));
+app.listen(3001, () => console.log("Server running on port 3001"));
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import { DeckGL } from "@deck.gl/react";
-import { ScatterplotLayer, LineLayer, PathLayer } from "@deck.gl/layers";
+import { ScatterplotLayer, LineLayer} from "@deck.gl/layers";
 import { Map } from "react-map-gl/mapbox";
 import OpacityControls from './OpacityControls';
 import DateRangeSlider from "./DateRangeSlider";

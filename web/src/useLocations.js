@@ -8,7 +8,7 @@ export default function useLocations(bounds) {
 
     const fetchData = async () => {
       const response = await fetch(
-        `http://localhost:5000/locations?minLng=${bounds.minLng}&minLat=${bounds.minLat}&maxLng=${bounds.maxLng}&maxLat=${bounds.maxLat}`
+        `http://localhost:3001/locations?minLng=${bounds.minLng}&minLat=${bounds.minLat}&maxLng=${bounds.maxLng}&maxLat=${bounds.maxLat}`
       );
       const data = await response.json();
 

@@ -1,6 +1,1 @@
-CREATE TABLE geodata (
-    id SERIAL PRIMARY KEY,
-    geom GEOMETRY(Point, 4326),
-    timestamp TIMESTAMP,
-    type TEXT
-);
+CREATE EXTENSION IF NOT EXISTS postgis;

@@ -1,13 +1,29 @@
 from __future__ import division
 import xml.etree.ElementTree as ET
-import sys
-import json
 import os
 import psycopg2
 import datetime
 from dotenv import load_dotenv
-import os
+import zipfile
+from pathlib import Path
 
+DATA_ZIP = os.environ["DATA_ZIP"]
+EXTRACT_DIR = Path("/tmp/data")
+
+load_dotenv()
+
+if not EXTRACT_DIR.exists():
+    print("Extracting data...")
+    with zipfile.ZipFile(DATA_ZIP, "r") as z:
+        z.extractall(EXTRACT_DIR)
+
+activity_files = list(EXTRACT_DIR.rglob("*.tcx"))
+
+dbname = os.getenv("DB_NAME")
+dbuser = os.getenv("DB_USER")
+dbpassword = os.getenv("DB_PASSWORD")
+dbhost = os.getenv("DB_HOST")
+dbport = os.getenv("DB_PORT")
 load_dotenv()
 
 dbname = os.getenv("DB_NAME")
@@ -18,7 +34,7 @@ print("Connecting to database...")
 
 # Database connection
 conn = psycopg2.connect(
-    database=dbname, user=dbuser, password=dbpassword, host="localhost", port="5432"
+    database=dbname, user=dbuser, password=dbpassword, host="db", port="5432"
 )
 cur = conn.cursor()
 cur.execute("SELECT COUNT(id)FROM locations;")
@@ -46,7 +62,7 @@ added = 0
 
 activity_id = 0
 prev_timestamp = None
-for filename in os.listdir("Activities"):
+for filename in activity_files:
     if (
         last_timestamp is not None
         and datetime.datetime.strptime(filename[:19], "%Y-%m-%dT%H_%M_%S")
