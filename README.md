@@ -1,4 +1,4 @@
-- Install [docker](https://www.docker.com/)
+- Install [Docker](https://www.docker.com/)
 - Download [Google Fit history](https://takeout.google.com) (only select Fit -> Activity history)
 - Rename the takeout file into "dataset.zip" and move it to this folder
 - Run docker compose up --build
