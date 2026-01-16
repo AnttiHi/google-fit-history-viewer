@@ -65,7 +65,7 @@ prev_timestamp = None
 for filename in activity_files:
     if (
         last_timestamp is not None
-        and datetime.datetime.strptime(filename[:19], "%Y-%m-%dT%H_%M_%S")
+        and datetime.datetime.strptime(filename.name[:19], "%Y-%m-%dT%H_%M_%S")
         < last_timestamp
     ):
         continue

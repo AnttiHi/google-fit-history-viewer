@@ -5,7 +5,8 @@ import { Map } from "react-map-gl/mapbox";
 import OpacityControls from './OpacityControls';
 import DateRangeSlider from "./DateRangeSlider";
 
-const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_TOKEN;
+
+const MAPBOX_TOKEN = process.env.MAPBOX_TOKEN;
 
 export default function MapComponent() {
     const [startDate, setStartDate] = useState(new Date(1000000000000));
