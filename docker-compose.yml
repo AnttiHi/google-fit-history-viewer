@@ -64,7 +64,7 @@ services:
       - "3000:3000"
     environment:
       REACT_APP_API_URL: http://localhost:3001
-      MAPBOX_TOKEN: ${MAPBOX_TOKEN}
+      REACT_APP_MAPBOX_TOKEN: ${REACT_APP_MAPBOX_TOKEN}
     depends_on:
       api:
         condition: service_started
