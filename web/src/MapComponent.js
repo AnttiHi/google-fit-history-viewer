@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import { DeckGL } from "@deck.gl/react";
-import { ScatterplotLayer, LineLayer} from "@deck.gl/layers";
+import { ScatterplotLayer, LineLayer } from "@deck.gl/layers";
 import { Map } from "react-map-gl/mapbox";
 import OpacityControls from './OpacityControls';
 import DateRangeSlider from "./DateRangeSlider";
@@ -13,6 +13,7 @@ export default function MapComponent() {
     const dateFilterStart = startDate.getTime();
     const dateFilterEnd = endDate.getTime();
     const [dateFilter, setDateFilter] = useState([dateFilterStart, dateFilterEnd]);
+    const [sliderValue, setSliderValue] = useState([startDate.getTime(), endDate.getTime()]);
 
     const [pointSize, setPointSize] = useState(1);
     const [lineWidth, setLineWidth] = useState(1);
@@ -52,14 +53,13 @@ export default function MapComponent() {
         const pageSize = 100000;
 
         const fetchTimestamps = async () => {
-            const response = await fetch(`http://localhost:3001/timestamps`);
+            const response = await fetch('http://localhost:3001/timestamps');
             const timestampData = await response.json();
 
-            if (timestampData.length === 0) return;
+            if (!timestampData?.first_timestamp || !timestampData?.last_timestamp) return;
 
-            // setStartDate(new Date(timestampData['first_timestamp']));
-            // setEndDate(new Date(timestampData['last_timestamp']));
-            console.log(timestampData['first_timestamp']);
+            setStartDate(new Date(timestampData.first_timestamp));
+            setEndDate(new Date(timestampData.last_timestamp));
         };
 
         const fetchPage = async (page) => {
@@ -83,6 +83,18 @@ export default function MapComponent() {
         fetchPage(currentPage);
 
     }, []);
+
+    useEffect(() => {
+        if (!startDate || !endDate) return;
+
+        const range = [
+            startDate.getTime(),
+            endDate.getTime(),
+        ];
+
+        setSliderValue(range);
+        setDateFilter(range);
+    }, [startDate, endDate]);
 
     const handlePointSizeChange = (value) => {
         setPointSize(parseFloat(value));
@@ -200,8 +212,10 @@ export default function MapComponent() {
             getRadius: dotSize,
             getFillColor: (d) => {
                 const t = d.type || 0;
-                if (t === "Walking" || t === "Running") {
+                if (t === "Walking") {
                     return [222, 111, 50];
+                } else if (t === "Running") {
+                    return [40, 90, 244]
                 } else if (t === "Biking") {
                     return [150, 70, 222];
                 } else {
@@ -239,41 +253,59 @@ export default function MapComponent() {
     }
 
     return (
-        <DeckGL
-            viewState={viewState}
-            controller={true}
-            layers={[lineLayer, scatterLayer]}
-            onViewStateChange={({ viewState }) => setViewState(viewState)}
-            getTooltip={getTooltip}
-        >
-            <Map
-                mapboxAccessToken={MAPBOX_TOKEN}
-                mapStyle={mapStyle}
-                ref={mapRef}
-                onLoad={(e) => {
-                    mapRef.current = e.target;
-                    console.log("Map loaded");
+        <div style={{ position: 'relative', width: '100%', height: '100vh' }}>
+            <DeckGL
+                viewState={viewState}
+                controller={true}
+                layers={[lineLayer, scatterLayer]}
+                onViewStateChange={({ viewState }) => setViewState(viewState)}
+                getTooltip={getTooltip}
+                style={{ width: '100%', height: '100%' }}
+            >
+                <Map
+                    mapboxAccessToken={MAPBOX_TOKEN}
+                    mapStyle={mapStyle}
+                    ref={mapRef}
+                    onLoad={(e) => (mapRef.current = e.target)}
+                />
+            </DeckGL>
+            <div
+                style={{
+                    position: 'absolute',
+                    top: 10,
+                    left: 0,
+                    right: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    paddingLeft: 10,
+                    paddingRight: 10,
+                    pointerEvents: 'none',
                 }}
-
-            />
-            <OpacityControls
-                map={mapRef.current}
-                opacities={opacities}
-                setOpacities={setOpacities}
-                mapStyle={mapStyle}
-                setMapStyle={setMapStyle}
-                lineWidth={lineWidth}
-                handleLineWidthChange={handleLineWidthChange}
-                pointSize={pointSize}
-                handlePointSizeChange={handlePointSizeChange}
-            />
-            <DateRangeSlider
-                dateFilter={dateFilter}
-                setDateFilter={setDateFilter}
-                minDate={startDate.getTime()}
-                maxDate={endDate.getTime()}
-            />
-        </DeckGL>
+            >
+                <div style={{ flex: 1, pointerEvents: 'auto' }}>
+                    <DateRangeSlider
+                        sliderValue={sliderValue}
+                        setSliderValue={setSliderValue}
+                        setDateFilter={setDateFilter}
+                        minDate={startDate.getTime()}
+                        maxDate={endDate.getTime()}
+                    />
+                </div>
+                <div style={{ marginLeft: 10, pointerEvents: 'auto' }}>
+                    <OpacityControls
+                        map={mapRef.current}
+                        opacities={opacities}
+                        setOpacities={setOpacities}
+                        mapStyle={mapStyle}
+                        setMapStyle={setMapStyle}
+                        lineWidth={lineWidth}
+                        handleLineWidthChange={handleLineWidthChange}
+                        pointSize={pointSize}
+                        handlePointSizeChange={handlePointSizeChange}
+                    />
+                </div>
+            </div>
+        </div>
     );
 }
 
