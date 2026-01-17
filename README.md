@@ -1,6 +1,6 @@
 - Install [Docker](https://www.docker.com/)
 - [Download](https://takeout.google.com) Google Fit history (only select Fit -> Activities)
-- Create a folder called "data", rename the takeout file into "dataset.zip" and move it there
+- Create a folder called "data", rename the takeout zip file into "dataset" and move it there
 - Rename ".env.example" into ".env", add a mapbox token if you want to see the map
 - Open a terminal in this folder and run `docker compose up --build`
 - Wait for all the containers to load. This might take a while, especially with a large dataset
