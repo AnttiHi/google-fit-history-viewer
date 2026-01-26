@@ -27,11 +27,12 @@ services:
     environment:
       DATABASE_URL: postgres://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
       DATA_ZIP: /data/dataset.zip
+      HASH_FILE: /data/dataset.zip.blake2
       DB_NAME: ${DB_NAME}
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
     volumes:
-      - ./data:/data:ro
+      - ./data:/data
     depends_on:
       db:
         condition: service_healthy

@@ -6,11 +6,27 @@ import datetime
 from dotenv import load_dotenv
 import zipfile
 from pathlib import Path
+import hashlib
+import sys
 
 DATA_ZIP = os.environ["DATA_ZIP"]
+PREV_HASH = Path(os.environ["HASH_FILE"])
 EXTRACT_DIR = Path("/tmp/data")
 
 load_dotenv()
+
+hash = hashlib.blake2b(open(DATA_ZIP, "rb").read(), digest_size=16).hexdigest()
+
+if PREV_HASH.exists():
+    prev_hash = PREV_HASH.read_text().strip()
+else:
+    prev_hash = None
+    
+if hash != prev_hash:
+    print("File changed, adding locations")
+else:
+    print("File unchanged, skipping")
+    sys.exit(0)
 
 if not EXTRACT_DIR.exists():
     print("Extracting data...")
@@ -106,7 +122,7 @@ for filename in activity_files:
                         "INSERT INTO locations (geom, timestamp, type) VALUES (ST_SetSRID(ST_MakePoint(%s, %s), 4326), %s, %s);",
                         (lat, lng, timestamp, item_type),
                     )
-                    #print("\rLocations written: %s" % (added), end="")
+                    print("\rLocations written: %s" % (added), end="")
                     added += 1
                     prev_timestamp = timestamp
 
@@ -124,4 +140,5 @@ conn.commit()
 cur.close()
 conn.close()
 
+PREV_HASH.write_text(hash)
 print("Data uploaded!")
